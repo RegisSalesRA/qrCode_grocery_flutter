@@ -3,7 +3,7 @@ A Qrcode project with flutter and firebase using Qrcode validations
 
 
 - lista de frutas com o QRCODe para marcar completo ou nao
-- leito proprio também de QRcode
+- leitor proprio também de QRcode
 - Firebase frutas
 - Adicionar frutas e marcar falso ou verdadeiro
 - Contato via Qrcode passar o Qrcode via contato e tambem add via Qrcode
