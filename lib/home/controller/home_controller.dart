@@ -83,13 +83,13 @@ class HomeController {
     switch (selectedType) {
       case 'contact':
         return '''
-BEGIN:VCARD
-VERSION:3.0
-FN:Grocery Flutter Qrcode
-TEL;TYPE=CELL:(85)9999-9999
-EMAIL:email@gmail.com
-END:VCARD
-''';
+          BEGIN:VCARD
+          VERSION:3.0
+          FN:Grocery Flutter Qrcode
+          TEL;TYPE=CELL:(85)9999-9999
+          EMAIL:email@gmail.com
+          END:VCARD
+              ''';
 
       case 'url':
         return 'https://flutter.dev';
