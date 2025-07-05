@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:qrcodeflutter/home/widget/scanner_model_contect_widget.dart';
+import 'package:qrcodeflutter/home/controller/home_controller.dart';
 import 'package:qrcodeflutter/mock/fruits_list_mock.dart';
 
 class HomeFruitsScreen extends StatefulWidget {
@@ -13,99 +12,11 @@ class HomeFruitsScreen extends StatefulWidget {
 }
 
 class _HomeFruitsScreenState extends State<HomeFruitsScreen> {
-  String qrData = '';
-  String selectedType = 'contact';
+  final HomeController homeController = HomeController();
 
-  final TextEditingController _textController = TextEditingController();
-
-  void _mostrarQrDaFruta(String qrData, String frutaNome) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('QR Code de $frutaNome'),
-          content: SizedBox(
-            width: 250,
-            height: 250,
-            child: Center(
-              child: QrImageView(
-                data: qrData,
-                version: QrVersions.auto,
-                size: 200,
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: Text("Fechar"),
-              onPressed: () => Navigator.of(context).pop(),
-            )
-          ],
-        );
-      },
-    );
-  }
-
-  void _marcarFrutaComoLida(String jsonScaneado) {
-    try {
-      final data = jsonDecode(jsonScaneado);
-      final nome = data['nome'];
-
-      final index = frutas.indexWhere((f) => f.nome == nome);
-      if (index != -1) {
-        setState(() {
-          frutas[index].lida = true;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${frutas[index].nome} marcada como lida!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Fruta não encontrada')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao processar QR Code')),
-      );
-    }
-  }
-
-  void _abrirScanner() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return ScannerModalContentWidget(onDetect: _marcarFrutaComoLida);
-      },
-    );
-  }
-
-  String _generateQRData() {
-    switch (selectedType) {
-      case 'contact':
-        return '''BEGIN:VCARD
-              VERSION: 3.0
-              FN: "Grocery Flutter Qrcode"
-              TEL: "(85) 9 9999 9999"
-              EMAIL: "email@gmail.com"
-              END:VCARD''';
-
-      case 'url':
-        String url = 'https://flutter.dev/';
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          url = 'https://$url';
-        }
-        return url;
-
-      default:
-        return _textController.text;
-    }
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -120,7 +31,7 @@ class _HomeFruitsScreenState extends State<HomeFruitsScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.qr_code_scanner),
-            onPressed: _abrirScanner,
+            onPressed: () => homeController.abrirScanner(context),
           ),
         ],
       ),
@@ -144,11 +55,13 @@ class _HomeFruitsScreenState extends State<HomeFruitsScreen> {
                       label: Text("Contact"),
                       onPressed: () {
                         setState(() {
-                          selectedType = "contact";
-                          qrData = _generateQRData();
+                          homeController.selectedType = "contact";
+                          homeController.qrData =
+                              homeController.generateQRData();
                         });
 
-                        _mostrarQrDaFruta(qrData, 'Contato');
+                        homeController.mostrarQrDaFruta(
+                            context, homeController.qrData, 'Contato');
                       },
                     ),
                   ),
@@ -160,11 +73,13 @@ class _HomeFruitsScreenState extends State<HomeFruitsScreen> {
                       label: Text("Website"),
                       onPressed: () {
                         setState(() {
-                          selectedType = "url";
-                          qrData = _generateQRData();
+                          homeController.selectedType = "url";
+                          homeController.qrData =
+                              homeController.generateQRData();
                         });
 
-                        _mostrarQrDaFruta(qrData, 'Website');
+                        homeController.mostrarQrDaFruta(
+                            context, homeController.qrData, 'Website');
                       },
                     ),
                   ),
@@ -188,7 +103,8 @@ class _HomeFruitsScreenState extends State<HomeFruitsScreen> {
                           : GestureDetector(
                               onTap: () {
                                 final qrData = jsonEncode(fruta.toJson());
-                                _mostrarQrDaFruta(qrData, fruta.nome);
+                                homeController.mostrarQrDaFruta(
+                                    context, qrData, fruta.nome);
                               },
                               child: Icon(Icons.qr_code, color: Colors.grey),
                             ),
